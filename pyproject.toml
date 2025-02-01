@@ -4,17 +4,29 @@ build-backend = "maturin"
 
 [project]
 name = "rustmssql_python"
-requires-python = ">=3.8"
+requires-python = ">=3.11"
+version = "0.1.0"
+description = "Exporta consultas do SQL Server para arquivos Parquet de forma eficiente usando Rust."
+authors = ["Marcus Holanda <mvsh777@hotmail.com>"]
+readme = "README.md"
 classifiers = [
+    "Development Status :: 1 - Planning",
+    "Natural Language :: Portuguese (Brazilian)",
+    "Programming Language :: PL/SQL",
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
+
+[project.urls]
+"Codigo" = "https://github.com/Marcus-Holanda777/rustmssql-python"
+
 [project.optional-dependencies]
 tests = [
     "pytest",
 ]
+
 [tool.maturin]
 python-source = "python"
 features = ["pyo3/extension-module"]
