@@ -4,10 +4,12 @@ build-backend = "maturin"
 
 [project]
 name = "rustmssql_python"
-requires-python = ">=3.11"
+requires-python = ">=3.9"
 version = "0.1.0"
 description = "Exporta consultas do SQL Server para arquivos Parquet de forma eficiente usando Rust."
-authors = ["Marcus Holanda <mvsh777@hotmail.com>"]
+authors = [
+  { name = "Marcus Holanda", email = "mvsh777@hotmail.com" },
+]
 readme = "README.md"
 classifiers = [
     "Development Status :: 1 - Planning",
