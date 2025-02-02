@@ -44,15 +44,10 @@ jobs:
       - name: Install dependencies
         run: |
            sudo apt-get update
-           sudo apt-get install libssl-dev 
-           sudo apt-get install pkg-config 
-           sudo apt-get install perl build-essential
+           sudo apt-get install -y perl build-essential
+           sudo apt-get install -y musl-tools
       - name: Build wheels
         uses: PyO3/maturin-action@v1
-        env:
-          OPENSSL_DIR: /usr/
-          OPENSSL_LIB_DIR: /usr/lib/${{ matrix.platform.target }}/
-          PKG_CONFIG_PATH: /usr/lib/${{ matrix.platform.target }}/pkgconfig/
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
