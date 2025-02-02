@@ -41,8 +41,11 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Configurar uso do OpenSSL do sistema
-        run: echo "OPENSSL_NO_VENDOR=1" >> $GITHUB_ENV
+      - name: Debug - Verificar versões e arquivos
+        run: |
+          perl -v
+          pkg-config --version
+          ls -l /usr/lib/pkgconfig/openssl.pc || echo "openssl.pc não encontrado em /usr/lib/pkgconfig"
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -50,6 +53,7 @@ jobs:
           args: --release --out dist --find-interpreter
           sccache: 'true'
           manylinux: auto
+          before-script-linux: cargo clean
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
