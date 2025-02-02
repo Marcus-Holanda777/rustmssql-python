@@ -18,7 +18,7 @@ tokio-stream = "0.1.17"
 tokio-util = { version = "0.7.13", features = ["compat"] }
 pyo3 = { version = "0.23.4", features = ["extension-module"] }
 openssl-sys = "0.9"
-openssl = { version = "0.10", features = ["vendored"] }
+openssl = "0.10"
 
 [package.metadata.maturin]
 python-source = "python"
