@@ -43,27 +43,10 @@ jobs:
           python-version: 3.x
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install -y libssl-dev pkg-config musl-tools
-      - name: Set OpenSSL environment variables
-        run: |
-          ARCH=$(uname -m)
-          if [[ "$ARCH" == "aarch64" ]]; then
-            echo "OPENSSL_DIR=/usr/aarch64-linux-gnu" >> $GITHUB_ENV
-            echo "PKG_CONFIG_PATH=/usr/aarch64-linux-gnu/lib/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
-          elif [[ "$ARCH" == "armv7l" ]]; then
-            echo "OPENSSL_DIR=/usr/arm-linux-gnueabihf" >> $GITHUB_ENV
-            echo "PKG_CONFIG_PATH=/usr/arm-linux-gnueabihf/lib/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
-          elif [[ "$ARCH" == "s390x" ]]; then
-            echo "OPENSSL_DIR=/usr/s390x-linux-gnu" >> $GITHUB_ENV
-            echo "PKG_CONFIG_PATH=/usr/s390x-linux-gnu/lib/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
-          elif [[ "$ARCH" == "ppc64le" ]]; then
-            echo "OPENSSL_DIR=/usr/powerpc64le-linux-gnu" >> $GITHUB_ENV
-            echo "PKG_CONFIG_PATH=/usr/powerpc64le-linux-gnu/lib/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
-          else
-            echo "OPENSSL_DIR=/usr" >> $GITHUB_ENV
-            echo "PKG_CONFIG_PATH=/usr/lib/pkgconfig:/usr/local/lib/pkgconfig" >> $GITHUB_ENV
-          fi
       - name: Build wheels
         uses: PyO3/maturin-action@v1
+        env:
+          OPENSSL_DIR: /usr/local/ssl
         with:
           target: ${{ matrix.platform.target }}
           args: --release --out dist --find-interpreter
