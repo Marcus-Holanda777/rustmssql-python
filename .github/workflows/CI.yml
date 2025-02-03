@@ -24,8 +24,8 @@ jobs:
     strategy:
       matrix:
         target:
-          - x86
           - x86_64
+          # - x86
           # - aarch64
           # - armv7
           # - ppc64le
@@ -45,7 +45,6 @@ jobs:
             # If we're running on rhel centos, install needed packages.
             if command -v yum &> /dev/null; then
                 echo "Primeira opcao --yum"
-                yum clean all
                 yum install -y epel-release
                 yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic krb5-libs clang-devel
 
