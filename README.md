@@ -7,7 +7,7 @@
 Para instalar o pacote, utilize:
 
 ```sh
-pip install rustmssql_python
+pip install rustmssql-python
 ```
 
 ## Uso
