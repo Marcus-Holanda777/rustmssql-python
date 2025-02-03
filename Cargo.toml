@@ -12,11 +12,14 @@ crate-type = ["cdylib"]
 anyhow = "1.0.95"
 parquet = "54.0.0"
 chrono = "0.4.39"
-tiberius = { version = "0.12.3", features = ["chrono"]}
 tokio = { version = "1.43.0", features = ["net", "macros", "rt-multi-thread"] }
 tokio-stream = "0.1.17"
 tokio-util = { version = "0.7.13", features = ["compat"] }
 pyo3 = { version = "0.23.4", features = ["extension-module"] }
+[target.'cfg(unix)'.dependencies]
+tiberius = { version = "0.12.3", features = ["chrono", "integrated-auth-gssapi"] }
+[target.'cfg(windows)'.dependencies]
+tiberius = { version = "0.12.3", features = ["chrono", "winauth"] }
 
 [package.metadata.maturin]
 python-source = "python"

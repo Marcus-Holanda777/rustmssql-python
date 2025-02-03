@@ -196,7 +196,7 @@ pub async fn write_parquet_from_stream(
     mut stream: QueryStream<'_>,
     schema: Arc<Type>,
     schema_sql: &Vec<MSchema>,
-    path: &str
+    path: &str,
 ) -> anyhow::Result<()> {
     //! Escreve um arquivo parquet a partir de um QueryStream.
     //! Recebe um QueryStream, um Arc<Type> e um &str.
