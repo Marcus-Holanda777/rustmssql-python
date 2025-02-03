@@ -29,7 +29,7 @@ jobs:
           - aarch64
           - armv7
           - ppc64le
-          - s390x
+          # - s390x --faha no OPENSSL desconhecida
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,6 +65,34 @@ jobs:
         with:
           name: wheels-linux-${{ matrix.target }}
           path: dist
+  
+  musllinux:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        target:
+          - x86_64
+          - x86
+          - aarch64
+          - armv7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+      - name: Instal OpenSSL
+        run: sudo apt-get update && sudo apt-get install libssl-dev openssl
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist --find-interpreter
+          manylinux: musllinux_1_2
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-musllinux-${{ matrix.target }}
+          path: dist
 
   windows:
     runs-on: windows-latest
@@ -84,7 +112,6 @@ jobs:
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
-          sccache: 'true'
       - name: Upload wheels
         uses: actions/upload-artifact@v4
         with:
