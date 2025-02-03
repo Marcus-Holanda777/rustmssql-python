@@ -29,7 +29,7 @@ jobs:
           - aarch64
           - armv7
           - ppc64le
-          #- s390x
+          - s390x
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -65,6 +65,31 @@ jobs:
         with:
           name: wheels-linux-${{ matrix.target }}
           path: dist
+
+  windows:
+    runs-on: windows-latest
+    strategy:
+      matrix:
+        target: 
+          - x64
+          - x86
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: 3.x
+          architecture: ${{ matrix.target }}
+      - name: Build wheels
+        uses: PyO3/maturin-action@v1
+        with:
+          target: ${{ matrix.target }}
+          args: --release --out dist --find-interpreter
+          sccache: 'true'
+      - name: Upload wheels
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-windows-${{ matrix.target }}
+          path: dist
   
   sdist:
     runs-on: ubuntu-latest
@@ -85,7 +110,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     if: ${{ startsWith(github.ref, 'refs/tags/') || github.event_name == 'workflow_dispatch' }}
-    needs: [linux, sdist]
+    needs: [linux, windows, sdist]
     permissions:
       # Use to sign the release artifacts
       id-token: write
