@@ -40,21 +40,38 @@ jobs:
         with:
           target: ${{ matrix.target }}
           args: --release --out dist --find-interpreter
-          sccache: 'false'
           manylinux: auto
           before-script-linux: |
-            # If we're running on rhel centos, install needed packages.
+            # Detecta se estamos em um sistema baseado em RHEL/CentOS ou Debian
             if command -v yum &> /dev/null; then
                 yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
-
-                # If we're running on i686 we need to symlink libatomic
-                # in order to build openssl with -latomic flag.
-                if [[ ! -d "/usr/lib64" ]]; then
-                    ln -s /usr/lib/libatomic.so.1 /usr/lib/libatomic.so
-                fi
+            
+                ARCH=$(uname -m)
+            
+                case "$ARCH" in
+                    i686)
+                        # Para i686, criamos um symlink para libatomic
+                        if [[ ! -d "/usr/lib64" ]]; then
+                            ln -s /usr/lib/libatomic.so.1 /usr/lib/libatomic.so
+                        fi
+                        ;;
+                    aarch64|armv7l|ppc64le|s390x)
+                        # Para arquiteturas alternativas, garantimos a instalação correta
+                        yum install -y gcc gcc-c++ make
+                        ;;
+                esac
             else
-                # If we're running on debian-based system.
+                # Se for Debian-based
                 apt update -y && apt-get install -y libssl-dev openssl pkg-config
+            
+                ARCH=$(dpkg --print-architecture)
+            
+                case "$ARCH" in
+                    armhf|armv7l|arm64|ppc64el|s390x)
+                        # Instala pacotes adicionais para compilação nessas arquiteturas
+                        apt-get install -y build-essential
+                        ;;
+                esac
             fi
       - name: Upload wheels
         uses: actions/upload-artifact@v4
