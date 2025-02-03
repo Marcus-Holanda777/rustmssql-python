@@ -31,7 +31,12 @@ pub async fn connect_server(
     if let (Some(user), Some(password)) = (user, password) {
         config.authentication(AuthMethod::sql_server(user, password));
     } else {
-        config.authentication(AuthMethod::Integrated);
+
+        if cfg!(target_os = "windows") {
+            config.authentication(AuthMethod::Integrated);
+        } else {
+            panic!("Autenticacao integrada somente no windows !");
+        }
     }
     config.trust_cert();
 
