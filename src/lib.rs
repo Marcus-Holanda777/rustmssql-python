@@ -60,7 +60,7 @@ pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
         stream,
         Arc::new(schema),
         &schema_sql,
-        cli.file_parquet.as_str()
+        cli.file_parquet.as_str(),
     )
     .await?;
 
