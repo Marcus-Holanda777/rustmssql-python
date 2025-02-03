@@ -1321,7 +1321,6 @@ version = "0.1.1"
 dependencies = [
  "anyhow",
  "chrono",
- "openssl-sys",
  "parquet",
  "pyo3",
  "tiberius",
