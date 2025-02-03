@@ -24,12 +24,12 @@ jobs:
     strategy:
       matrix:
         target:
-          - x86
-          - x86_64
+          #- x86
+          #- x86_64
           - aarch64
-          - armv7
-          - ppc64le
-          - s390x
+          #- armv7
+          #- ppc64le
+          #- s390x
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -55,9 +55,9 @@ jobs:
             else
                 # If we're running on debian-based system.
                 echo "Segunda opcao --apt"
-                apt-get update && apt-get install libssl-dev -y
+                apt update -y && apt-get install -y libssl-dev openssl pkg-config
                 
-                # apt update -y && apt-get install -y libssl-dev
+                # apt update -y && apt-get install -y libssl-dev openssl pkg-config
                 # antes (openssl pkg-config clang llvm-dev libkrb5-dev krb5-config)
             fi
       - name: Upload wheels
