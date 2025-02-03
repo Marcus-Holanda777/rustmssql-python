@@ -38,7 +38,7 @@ jobs:
       - name: Intall Tools
         run: |
           sudo apt update
-          sudo apt install clang clang-dev
+          sudo apt install clang llvm-dev
           sudo apt install libkrb5-dev krb5-config
       - name: Build wheels
         uses: PyO3/maturin-action@v1
