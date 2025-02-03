@@ -21,7 +21,6 @@ permissions:
 jobs:
   linux:
     runs-on: ubuntu-latest
-    container: quay.io/pypa/manylinux_2_28_x86_64
     strategy:
       matrix:
         target:
@@ -36,10 +35,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: 3.x
-      - name: Install tools
-        run: |
-          yum install -y epel-release
-          yum install -y krb5-libs clang-devel
       - name: Build wheels
         uses: PyO3/maturin-action@v1
         with:
@@ -50,7 +45,7 @@ jobs:
             # If we're running on rhel centos, install needed packages.
             if command -v yum &> /dev/null; then
                 echo "Primeira opcao --yum"
-                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic epel-release
+                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
 
                 # If we're running on i686 we need to symlink libatomic
                 # in order to build openssl with -latomic flag.
