@@ -45,7 +45,7 @@ jobs:
             # If we're running on rhel centos, install needed packages.
             if command -v yum &> /dev/null; then
                 echo "Primeira opcao --yum"
-                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic krb5-libs
+                yum update -y && yum install -y perl-core openssl openssl-devel pkgconfig libatomic
 
                 # If we're running on i686 we need to symlink libatomic
                 # in order to build openssl with -latomic flag.
@@ -55,7 +55,9 @@ jobs:
             else
                 # If we're running on debian-based system.
                 echo "Segunda opcao --apt"
-                apt update -y && apt-get install -y libssl-dev openssl pkg-config
+                apt update -y && apt-get install -y libssl-dev
+                
+                # antes (openssl pkg-config)
             fi
       - name: Upload wheels
         uses: actions/upload-artifact@v4
