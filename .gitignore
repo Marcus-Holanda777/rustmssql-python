@@ -1,5 +1,10 @@
 /target
 
+*.parquet
+*.xlsx
+*.csv
+*$.xlsx
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 .pytest_cache/
