@@ -118,7 +118,9 @@ fn to_type_column(schema: &MSchema) -> Type {
                 unit: datetime_precision,
             }),
         ),
-        "binary" | "varbinary" | "image" => get_type(&col, PhysicalType::BYTE_ARRAY, None),
+        "binary" | "varbinary" | "image" | "timestamp" => {
+            get_type(&col, PhysicalType::BYTE_ARRAY, None)
+        }
         _ => get_type(&col, PhysicalType::BYTE_ARRAY, Some(LogicalType::String)),
     }
 }

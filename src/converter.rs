@@ -145,7 +145,7 @@ impl<'a> ColumnProcess<ByteArray> for Converter<'a> {
                 ColumnData::Binary(Some(valor)) => {
                     lotes.push(ByteArray::from(valor.as_ref()));
                     levels.push(1);
-                },
+                }
                 ColumnData::Binary(None) => levels.push(0),
                 _ => levels.push(0),
             });

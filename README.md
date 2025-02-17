@@ -104,6 +104,7 @@ def py_export_to_parquet(
 | `BINARY`              | `BYTE_ARRAY`           |                            |
 | `VARBINARY`           | `BYTE_ARRAY`           |                            |
 | `IMAGE`               | `BYTE_ARRAY`           |                            |
+| `TIMESTAMP`           | `BYTE_ARRAY`           |                            |
 | `DATE`                | `INT32`                | `Date`                     |
 | `DATETIME`            | `INT64`                | `Timestamp`                |
 | `DATETIME2`           | `INT64`                | `Timestamp`                |
