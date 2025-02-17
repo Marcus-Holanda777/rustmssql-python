@@ -166,6 +166,7 @@ where
         match &col_data[0] {
             ColumnData::I32(_) => parse_rows::<i32>(conv)?,
             ColumnData::String(_) => parse_rows::<ByteArray>(conv)?,
+            ColumnData::Binary(_) => parse_rows::<ByteArray>(conv)?,
             ColumnData::U8(_) => parse_rows::<i32>(conv)?,
             ColumnData::I16(_) => parse_rows::<i32>(conv)?,
             ColumnData::I64(_) => parse_rows::<i64>(conv)?,
