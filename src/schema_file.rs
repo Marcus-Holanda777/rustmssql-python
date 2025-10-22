@@ -181,6 +181,7 @@ where
             ColumnData::Time(_) => parse_rows::<i64>(conv)?,
             ColumnData::Date(_) => parse_rows::<i32>(conv)?,
             ColumnData::Xml(_) => parse_rows::<ByteArray>(conv)?,
+            ColumnData::Guid(_) => parse_rows::<ByteArray>(conv)?,
             _ => {
                 println!("Tipo de dado não reconhecido, {:?}", col_data[0]);
                 unimplemented!()

@@ -101,6 +101,7 @@ def py_export_to_parquet(
 | `TEXT`                | `BYTE_ARRAY`           | `String`                   |
 | `NTEXT`               | `BYTE_ARRAY`           | `String`                   |
 | `XML`                 | `BYTE_ARRAY`           | `String`                   |
+| `UUID`                | `BYTE_ARRAY`           | `String`                   |
 | `BINARY`              | `BYTE_ARRAY`           |                            |
 | `VARBINARY`           | `BYTE_ARRAY`           |                            |
 | `IMAGE`               | `BYTE_ARRAY`           |                            |
