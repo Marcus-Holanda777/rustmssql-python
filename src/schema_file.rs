@@ -2,11 +2,9 @@ use crate::MSchema;
 use crate::converter::{Converter, parse_rows};
 use parquet::basic::{Compression, ZstdLevel};
 use parquet::file::{properties::WriterProperties, writer::SerializedFileWriter};
-use parquet::format::NanoSeconds;
 use parquet::{
     basic::{LogicalType, Repetition, TimeUnit, Type as PhysicalType},
     data_type::{ByteArray, FixedLenByteArray},
-    format::{MicroSeconds, MilliSeconds},
     schema::types::Type,
 };
 use std::collections::HashMap;
@@ -56,9 +54,9 @@ fn to_type_column(schema: &MSchema) -> Type {
 
     // definir a precisao do tempo
     let datetime_precision = match schema.datetime_precision.unwrap_or(0) {
-        0..=3 => TimeUnit::MILLIS(MilliSeconds {}),
-        4..=6 => TimeUnit::MICROS(MicroSeconds {}),
-        7.. => TimeUnit::NANOS(NanoSeconds {}),
+        0..=3 => TimeUnit::MILLIS,
+        4..=6 => TimeUnit::MICROS,
+        7.. => TimeUnit::NANOS,
     };
 
     let num_binary_digits = precision as f64 * 10f64.log2();
@@ -98,7 +96,7 @@ fn to_type_column(schema: &MSchema) -> Type {
                 .unwrap()
         }
         "bit" => get_type(&col, PhysicalType::BOOLEAN, None),
-        "char" | "varchar" | "text" | "nchar" | "nvarchar" | "ntext" | "xml" => {
+        "char" | "varchar" | "text" | "nchar" | "nvarchar" | "ntext" | "xml" | "uniqueidentifier" => {
             get_type(&col, PhysicalType::BYTE_ARRAY, Some(LogicalType::String))
         }
         "datetime" | "datetime2" | "smalldatetime" => get_type(
