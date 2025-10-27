@@ -7,7 +7,7 @@ def py_export_to_parquet(
     path_file: str = None, 
     file_parquet: str ="default.parquet", 
     user: str = None, 
-    secret: str =None, 
+    secret: str = None, 
     parameters: list[str] = None,
     compression: Literal["SNAPPY", "GZIP", "BROTLI", "LZ4", "LZO", "LZ4_RAW", "ZSTD"] = "ZSTD"
 ) -> None:
