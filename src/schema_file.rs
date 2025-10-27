@@ -206,6 +206,7 @@ pub async fn write_parquet_from_stream(
     //! O Arc<Type> é o schema parquet.
     //! O &str é o caminho do arquivo parquet.
     //! Retorna um Result<()>.
+    //! Utiliza compressão para o arquivo parquet.
 
     let path_new = Path::new(path);
     let file = fs::File::create(&path_new).unwrap();
