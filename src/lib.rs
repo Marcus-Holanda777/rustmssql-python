@@ -35,8 +35,8 @@ impl Params {
             Some("LZ4") => Compression::LZ4,
             Some("LZO") => Compression::LZO,
             Some("LZ4_RAW") => Compression::LZ4_RAW,
-            Some("ZSTD") => Compression::ZSTD(ZstdLevel::try_new(1).unwrap()),
-            Some("UNCOMPRESSED") | None | _ => Compression::UNCOMPRESSED,
+            Some("UNCOMPRESSED")  => Compression::UNCOMPRESSED,
+            Some("ZSTD") | None | _ => Compression::ZSTD(ZstdLevel::try_new(1).unwrap()),
         }
     }
 }
@@ -95,7 +95,7 @@ pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
 /// - `user`: Nome de usuário para autenticação no SQL Server (opcional).
 /// - `secret`: Senha para autenticação no SQL Server (opcional).
 /// - `parameters`: Lista de parâmetros para a consulta SQL (opcional).
-///
+/// - `compression`: Tipo de compressão para o arquivo Parquet (padrão: "ZSTD").
 /// # Retorno
 /// Esta função não retorna nenhum valor.
 #[pyfunction]
