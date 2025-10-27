@@ -6,6 +6,7 @@ use std::error::Error;
 use std::result::Result;
 use std::sync::Arc;
 use tiberius::{Query, QueryStream};
+use parquet::basic::{Compression, ZstdLevel};
 
 mod connections;
 pub use connections::*;
@@ -22,14 +23,30 @@ pub struct Params {
     pub user: Option<String>,
     pub secret: Option<String>,
     pub parameters: Vec<String>,
+    pub compression: Option<String>
+}
+
+impl Params {
+    pub fn select_compression(&self) -> Compression {
+        match self.compression.as_deref().map(|s| s.to_uppercase()).as_deref() {
+            Some("SNAPPY") => Compression::SNAPPY,
+            Some("GZIP") => Compression::GZIP(Default::default()),
+            Some("BROTLI") => Compression::BROTLI(Default::default()),
+            Some("LZ4") => Compression::LZ4,
+            Some("LZO") => Compression::LZO,
+            Some("LZ4_RAW") => Compression::LZ4_RAW,
+            Some("ZSTD") => Compression::ZSTD(ZstdLevel::try_new(1).unwrap()),
+            Some("UNCOMPRESSED") | None | _ => Compression::UNCOMPRESSED,
+        }
+    }
 }
 
 pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
     let mut query: String = String::new();
 
-    if let Some(str_query) = cli.query {
-        query = str_query;
-    } else if let Some(file_query) = cli.path_file {
+    if let Some(ref str_query) = cli.query {
+        query = str_query.to_string();
+    } else if let Some(ref file_query) = cli.path_file {
         query = fs::read_to_string(&file_query)?;
     };
 
@@ -50,7 +67,7 @@ pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
     .await?;
 
     let mut select: Query<'_> = Query::new(query);
-    for param in cli.parameters {
+    for param in &cli.parameters {
         select.bind(param);
     }
 
@@ -61,6 +78,7 @@ pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
         Arc::new(schema),
         &schema_sql,
         cli.file_parquet.as_str(),
+        cli.select_compression()
     )
     .await?;
 
@@ -81,7 +99,7 @@ pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
 /// # Retorno
 /// Esta função não retorna nenhum valor.
 #[pyfunction]
-#[pyo3(signature = (name_server, query=None, path_file=None, file_parquet="default.parquet", user=None, secret=None, parameters=None))]
+#[pyo3(signature = (name_server, query=None, path_file=None, file_parquet="default.parquet", user=None, secret=None, parameters=None, compression=None))]
 fn py_export_to_parquet(
     name_server: String,
     query: Option<String>,
@@ -90,6 +108,7 @@ fn py_export_to_parquet(
     user: Option<String>,
     secret: Option<String>,
     parameters: Option<Vec<String>>,
+    compression: Option<String>,
 ) -> PyResult<()> {
     // Converter lista Python para Vec<String>
     let param_vec = parameters.unwrap_or_else(|| Vec::new());
@@ -103,6 +122,7 @@ fn py_export_to_parquet(
         user,
         secret,
         parameters: param_vec,
+        compression
     };
 
     // Criar runtime assíncrona para rodar no Python

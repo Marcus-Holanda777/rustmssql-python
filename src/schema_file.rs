@@ -1,6 +1,6 @@
 use crate::MSchema;
 use crate::converter::{Converter, parse_rows};
-use parquet::basic::{Compression, ZstdLevel};
+use parquet::basic::Compression;
 use parquet::file::{properties::WriterProperties, writer::SerializedFileWriter};
 use parquet::{
     basic::{LogicalType, Repetition, TimeUnit, Type as PhysicalType},
@@ -199,6 +199,7 @@ pub async fn write_parquet_from_stream(
     schema: Arc<Type>,
     schema_sql: &Vec<MSchema>,
     path: &str,
+    compression: Compression,
 ) -> anyhow::Result<()> {
     //! Escreve um arquivo parquet a partir de um QueryStream.
     //! Recebe um QueryStream, um Arc<Type> e um &str.
@@ -210,7 +211,7 @@ pub async fn write_parquet_from_stream(
     let file = fs::File::create(&path_new).unwrap();
 
     let props = WriterProperties::builder()
-        .set_compression(Compression::ZSTD(ZstdLevel::try_new(1)?))
+        .set_compression(compression)
         .build()
         .into();
 

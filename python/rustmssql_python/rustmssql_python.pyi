@@ -1,3 +1,6 @@
+from typing import Literal
+
+
 def py_export_to_parquet(
     name_server: str, 
     query: str = None, 
@@ -5,7 +8,8 @@ def py_export_to_parquet(
     file_parquet: str ="default.parquet", 
     user: str = None, 
     secret: str =None, 
-    parameters: list[str] =None
+    parameters: list[str] = None,
+    compression: Literal["SNAPPY", "GZIP", "BROTLI", "LZ4", "LZO", "LZ4_RAW", "ZSTD"] = "UNCOMPRESSED"
 ) -> None:
     
     """
@@ -20,6 +24,7 @@ def py_export_to_parquet(
     - `user` (str): Nome de usuário para autenticação no SQL Server (opcional).
     - `secret` (str): Senha para autenticação no SQL Server (opcional).
     - `parameters` (list[str]): Lista de parâmetros para a consulta SQL (opcional).
+    - `compression` (Literal["SNAPPY", "GZIP", "BROTLI", "LZ4", "LZO", "LZ4_RAW", "ZSTD"]): Tipo de compressão para o arquivo Parquet (padrão: "UNCOMPRESSED").
     
     ### Retorno
     
