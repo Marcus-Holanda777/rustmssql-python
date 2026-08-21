@@ -1,3 +1,4 @@
+use pyo3::exceptions::PyRuntimeError;
 use pyo3::prelude::*;
 use std::fs;
 use tokio::runtime::Runtime;
@@ -128,12 +129,10 @@ fn py_export_to_parquet(
     // Criar runtime assíncrona para rodar no Python
     let rt = Runtime::new().unwrap();
     rt.block_on(async {
-        if let Err(e) = export_to_parquet(params).await {
-            eprintln!("Erro ao exportar para Parquet: {}", e);
-        }
-    });
-
-    Ok(())
+        export_to_parquet(params)
+            .await
+            .map_err(|e| PyRuntimeError::new_err(e.to_string()))
+    })
 }
 
 /// Criar o módulo Python
