@@ -117,17 +117,16 @@ pub async fn schema_mssql(
 
 pub async fn schema_mssql_query(
     query: &str,
-    server: &str,
-    user: Option<&str>,
-    password: Option<&str>,
+    client: &mut Client<Compat<TcpStream>>,
 ) -> anyhow::Result<Vec<MSchema>> {
     //! Retorna os metadados da consulta,
     //! como nome da coluna, tipo de dado, se é nulo,
     //! precisão numérica, escala numérica e precisão de data e hora.
     //! Utiliza a `procedure sp_describe_first_result_set` para obter os metadados.
+    //! Roda na conexao ja aberta pelo chamador (nao abre conexao propria) --
+    //! evita um segundo handshake TCP/login so pra descrever o schema.
 
     let mut schema: Vec<MSchema> = Vec::new();
-    let mut client: Client<Compat<TcpStream>> = connect_server(server, user, password).await?;
 
     let sql: String = format!(
         r#"
@@ -137,7 +136,7 @@ pub async fn schema_mssql_query(
     );
 
     let select: Query<'_> = Query::new(sql);
-    let mut stream: QueryStream<'_> = select.query(&mut client).await?;
+    let mut stream: QueryStream<'_> = select.query(client).await?;
 
     while let Some(row) = stream.try_next().await? {
         if let QueryItem::Row(r) = row {

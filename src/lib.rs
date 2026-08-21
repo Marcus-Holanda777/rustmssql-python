@@ -51,21 +51,17 @@ pub async fn export_to_parquet(cli: Params) -> Result<(), Box<dyn Error>> {
         query = fs::read_to_string(&file_query)?;
     };
 
-    let schema_sql: Vec<MSchema> = schema_mssql_query(
-        query.as_str(),
-        cli.name_server.as_str(),
-        cli.user.as_deref(),
-        cli.secret.as_deref(),
-    )
-    .await?;
-    let schema = create_schema_parquet(&schema_sql);
-
     let mut client = connect_server(
         cli.name_server.as_str(),
         cli.user.as_deref(),
         cli.secret.as_deref(),
     )
     .await?;
+
+    // reusa a mesma conexao pro describe e pra query real -- evita um
+    // segundo handshake TCP/login por chamada
+    let schema_sql: Vec<MSchema> = schema_mssql_query(query.as_str(), &mut client).await?;
+    let schema = create_schema_parquet(&schema_sql);
 
     let mut select: Query<'_> = Query::new(query);
     for param in &cli.parameters {
