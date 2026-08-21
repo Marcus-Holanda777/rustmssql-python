@@ -122,10 +122,11 @@ pub async fn schema_mssql_query(
 
     while let Some(row) = stream.try_next().await? {
         if let QueryItem::Row(r) = row {
-            let is_nullable: &str = if r.get::<bool, _>(3).unwrap() {
-                "YES"
-            } else {
-                "NO"
+            // nulidade desconhecida (UNION, CASE, etc.) -> assume nullable,
+            // mais seguro que panic
+            let is_nullable: &str = match r.get::<bool, _>(3) {
+                Some(false) => "NO",
+                Some(true) | None => "YES",
             };
 
             let ms_schema: MSchema = MSchema {

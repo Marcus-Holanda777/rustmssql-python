@@ -209,7 +209,7 @@ pub async fn write_parquet_from_stream(
     //! Utiliza compressão para o arquivo parquet.
 
     let path_new = Path::new(path);
-    let file = fs::File::create(&path_new).unwrap();
+    let file = fs::File::create(&path_new)?;
 
     let props = WriterProperties::builder()
         .set_compression(compression)
