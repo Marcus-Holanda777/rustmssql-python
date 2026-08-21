@@ -1,10 +1,16 @@
 use anyhow::Ok;
+use std::time::Duration;
 use tiberius::{AuthMethod, Client, Config};
 use tiberius::{Query, QueryItem, QueryStream};
 use tokio::net::TcpStream;
+use tokio::time::timeout;
 use tokio_stream::StreamExt;
 use tokio_util::compat::Compat;
 use tokio_util::compat::TokioAsyncWriteCompatExt;
+
+// handshake TCP e login nao tem timeout proprio no tiberius/tokio; sem isso
+// uma rede travada ou servidor que nao responde fica esperando pra sempre
+const CONNECT_TIMEOUT: Duration = Duration::from_secs(30);
 
 #[derive(Debug)]
 pub struct MSchema {
@@ -23,6 +29,7 @@ pub async fn connect_server(
 ) -> anyhow::Result<Client<Compat<TcpStream>>> {
     //! Conecta ao servidor SQL Server.
     //! Retorna um cliente para realizar consultas.
+    //! TCP connect e login tem timeout de CONNECT_TIMEOUT (30s).
 
     let mut config: Config = Config::new();
     config.host(server);
@@ -39,11 +46,23 @@ pub async fn connect_server(
     }
     config.trust_cert();
 
-    let tcp_stream: TcpStream = TcpStream::connect(config.get_addr()).await?;
+    let tcp_stream: TcpStream = timeout(CONNECT_TIMEOUT, TcpStream::connect(config.get_addr()))
+        .await
+        .map_err(|_| {
+            anyhow::anyhow!(
+                "timeout ({:?}) ao conectar em {}:1433",
+                CONNECT_TIMEOUT,
+                server
+            )
+        })??;
     tcp_stream.set_nodelay(true)?;
 
-    let client: Client<Compat<TcpStream>> =
-        Client::connect(config, tcp_stream.compat_write()).await?;
+    let client: Client<Compat<TcpStream>> = timeout(
+        CONNECT_TIMEOUT,
+        Client::connect(config, tcp_stream.compat_write()),
+    )
+    .await
+    .map_err(|_| anyhow::anyhow!("timeout ({:?}) no login em {}", CONNECT_TIMEOUT, server))??;
 
     Ok(client)
 }
@@ -122,10 +141,11 @@ pub async fn schema_mssql_query(
 
     while let Some(row) = stream.try_next().await? {
         if let QueryItem::Row(r) = row {
-            let is_nullable: &str = if r.get::<bool, _>(3).unwrap() {
-                "YES"
-            } else {
-                "NO"
+            // nulidade desconhecida (UNION, CASE, etc.) -> assume nullable,
+            // mais seguro que panic
+            let is_nullable: &str = match r.get::<bool, _>(3) {
+                Some(false) => "NO",
+                Some(true) | None => "YES",
             };
 
             let ms_schema: MSchema = MSchema {

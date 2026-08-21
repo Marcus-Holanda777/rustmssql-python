@@ -271,22 +271,25 @@ impl<'a> ColumnProcess<FixedLenByteArray> for Converter<'a> {
             let length_in_bits = num_binary_digits + 1.0;
             let length_in_bytes = (length_in_bits / 8.0).ceil() as usize;
 
-            self.col_data.iter().for_each(|f| match f {
-                ColumnData::Numeric(Some(v)) => {
-                    let bytes_array = v.value();
+            self.col_data.iter().try_for_each(|f| -> anyhow::Result<()> {
+                match f {
+                    ColumnData::Numeric(Some(v)) => {
+                        let bytes_array = v.value();
 
-                    let bytes_decimal: Vec<u8> =
-                        encode_decimal(bytes_array, precision, length_in_bytes);
+                        let bytes_decimal =
+                            encode_decimal(bytes_array, precision, length_in_bytes)?;
 
-                    let row_add = FixedLenByteArray::from(ByteArray::from(bytes_decimal));
-                    lotes.push(row_add);
-                    levels.push(1);
+                        let row_add = FixedLenByteArray::from(ByteArray::from(bytes_decimal));
+                        lotes.push(row_add);
+                        levels.push(1);
+                    }
+                    ColumnData::Numeric(None) => {
+                        levels.push(0);
+                    }
+                    _ => levels.push(0),
                 }
-                ColumnData::Numeric(None) => {
-                    levels.push(0);
-                }
-                _ => levels.push(0),
-            });
+                Ok(())
+            })?;
 
             col_write_t.typed::<FixedLenByteArrayType>().write_batch(
                 &lotes[..],
@@ -311,7 +314,11 @@ where
     Ok(())
 }
 
-fn encode_decimal(scaled_value: i128, precision: u32, length_in_bytes: usize) -> Vec<u8> {
+fn encode_decimal(
+    scaled_value: i128,
+    precision: u32,
+    length_in_bytes: usize,
+) -> anyhow::Result<Vec<u8>> {
     // Converter a string para um número de ponto flutuante
     //!let float_value: f64 = value.parse().expect("Invalid decimal string");
 
@@ -324,9 +331,10 @@ fn encode_decimal(scaled_value: i128, precision: u32, length_in_bytes: usize) ->
     let min_value = -10i128.pow(precision);
 
     if scaled_value > max_value || scaled_value < min_value {
-        panic!(
+        anyhow::bail!(
             "Valor escalado ({}) excede o intervalo permitido para a precisão {}",
-            scaled_value, precision
+            scaled_value,
+            precision
         );
     }
 
@@ -346,7 +354,7 @@ fn encode_decimal(scaled_value: i128, precision: u32, length_in_bytes: usize) ->
 
     bytes[dest_start..].copy_from_slice(&scaled_bytes[copy_start..copy_end]);
 
-    bytes
+    Ok(bytes)
 }
 
 fn convert_to_naive_datetime(dt: &DateTime) -> NaiveDateTime {
